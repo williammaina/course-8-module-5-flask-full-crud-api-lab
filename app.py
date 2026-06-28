@@ -41,16 +41,21 @@ def update_event(event_id):
         return jsonify(event.to_dict()), 200
     return jsonify({"error": "No title provided"}), 400
 
-@app.route("/events/<int:event_id>", methods=["DELETE"])
-def delete_event(event_id):
+@app.route('/events/<int:id>', methods=['DELETE'])
+def delete_event(id):
     global events
-    event = next((e for e in events if e.id == event_id), None)
     
-    if not event:
+    # 1. Find the event with the matching ID
+    event_to_delete = next((event for event in events if event.id == id), None)
+    
+    # 2. If it doesn't exist, return a 404 (optional, but good practice)
+    if event_to_delete is None:
         return jsonify({"error": "Event not found"}), 404
+        
+    # 3. Filter out the event to remove it from our simulated database list
+    events = [event for event in events if event.id != id]
     
-    events = [e for e in events if e.id != event_id]
-    return jsonify({"message": f"Event {event_id} deleted"}), 200
-
+    # 4. Return an empty string or None alongside the explicit 204 status code
+    return '', 204
 if __name__ == "__main__":
     app.run(debug=True)
